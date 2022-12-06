@@ -4,6 +4,12 @@ export type Project = {
   createdAt: Date;
 };
 
+export type ProjectRepository = {
+  count(): Promise<number>;
+  list(limit: number, offset: number): Promise<Project[]>;
+  create(project: Omit<Project, "id" | "createdAt">): Promise<Project>;
+};
+
 export const decoratedProjectName = (project: Pick<Project, "name">) =>
   `✨✨${project.name}✨✨`;
 

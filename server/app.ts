@@ -1,10 +1,8 @@
 import express from "express";
 import bodyParser from "body-parser";
-import {
-  ProjectRepository,
-  projectRepositoryBuilder,
-} from "./repository/projects";
+import { ProjectRepository } from "./domain/project";
 import { projectCreateHandler, projectListHandler } from "./handler/projects";
+import { projectRepositoryBuilder } from "./infra/projects";
 
 export type RequestContext = {
   projectRepository: ProjectRepository;

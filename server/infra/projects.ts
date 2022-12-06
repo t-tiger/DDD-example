@@ -1,10 +1,4 @@
-import { Project } from "../domain/project";
-
-export type ProjectRepository = {
-  count(): Promise<number>;
-  list(limit: number, offset: number): Promise<Project[]>;
-  create(project: Omit<Project, "id" | "createdAt">): Promise<Project>;
-};
+import { Project, ProjectRepository } from "../domain/project";
 
 // On-memory store
 const onMemoryProjects = [] as Project[];
