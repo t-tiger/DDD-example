@@ -1,2 +1,5 @@
 .idea
 **/node_modules
+reversi/dist
+reversi/.parcel-cache
+reversi/node_modules

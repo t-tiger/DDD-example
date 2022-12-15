@@ -1,0 +1,14 @@
+{
+  "name": "reversi",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "parcel index.html"
+  },
+  "devDependencies": {
+    "@parcel/transformer-sass": "2.8.2",
+    "parcel": "^2.8.2",
+    "typescript": "^4.9.4"
+  }
+}
