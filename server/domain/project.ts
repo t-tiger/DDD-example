@@ -19,7 +19,7 @@ export const validateProject = (
   const errors: string[] = [];
 
   if (project.name.trim().length === 0) {
-    errors.push("Project name must be present.");
+    errors.push("Movie name must be present.");
   }
   if (project.name.trim().length > 100) {
     errors.push("The length of project name must be less than 100.");

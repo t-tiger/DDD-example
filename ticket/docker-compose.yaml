@@ -1,0 +1,15 @@
+version: "3"
+services:
+  db:
+    image: mysql:8.0
+    volumes:
+      - db_store:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: ticket
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3307:3306"
+
+volumes:
+  db_store:
+    driver: local

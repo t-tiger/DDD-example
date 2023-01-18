@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = "mysql://root:password@127.0.0.1:3307/ticket?connection_limit=20&socket_timeout=5"
+}
+
+model Movie {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  releaseDate DateTime @db.Date()
+  createdAt   DateTime
+  plays       Play[]
+}
+
+model Play {
+  id           Int           @id @default(autoincrement())
+  movie        Movie         @relation(fields: [movieId], references: [id])
+  movieId      Int
+  reservations Reservation[]
+  datetime     DateTime
+}
+
+model Theater {
+  id      Int      @id @default(autoincrement())
+  address String
+  screens Screen[]
+}
+
+model Screen {
+  id        Int            @id @default(autoincrement())
+  name      String
+  theater   Theater        @relation(fields: [theaterId], references: [id])
+  theaterId Int
+  seats     Seat[]
+  options   ScreenOption[]
+}
+
+model ScreenOption {
+  id         Int    @id @default(autoincrement())
+  name       String
+  extraPrice Int
+  screen     Screen @relation(fields: [screenId], references: [id])
+  screenId   Int
+}
+
+model Seat {
+  id           Int           @id @default(autoincrement())
+  number       String
+  screen       Screen        @relation(fields: [screenId], references: [id])
+  screenId     Int
+  reservations Reservation[]
+}
+
+model Reservation {
+  id         Int                   @id @default(autoincrement())
+  play       Play                  @relation(fields: [playId], references: [id])
+  playId     Int
+  seat       Seat                  @relation(fields: [seatId], references: [id])
+  seatId     Int
+  customer   Customer              @relation(fields: [customerId], references: [id])
+  customerId Int
+  discounts  ReservationDiscount[]
+}
+
+model ReservationDiscount {
+  id            Int         @id @default(autoincrement())
+  reservation   Reservation @relation(fields: [reservationId], references: [id])
+  reservationId Int
+  discount      Discount    @relation(fields: [discountId], references: [id])
+  discountId    Int
+}
+
+model Discount {
+  id                  Int                   @id @default(autoincrement())
+  name                String
+  price               Int
+  resrvationDiscounts ReservationDiscount[]
+}
+
+model Customer {
+  id           Int           @id @default(autoincrement())
+  name         String
+  birth        DateTime      @db.Date()
+  reservations Reservation[]
+}
