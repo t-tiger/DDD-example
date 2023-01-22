@@ -2,7 +2,7 @@ import { Seat } from "./seat";
 import { Screen } from "./screen";
 import { Discount } from "./discount";
 import { baseTicketPrice, Customer } from "./customer";
-import { sumOfArr } from "../lib/math";
+import { sumOfArr } from "../ticket/lib/math";
 
 export type Reservation = {
   id: number;

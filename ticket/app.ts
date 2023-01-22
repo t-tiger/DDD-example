@@ -1,15 +1,17 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { movieListHandler } from "./handler/movie";
-import { movieRepositoryBuilder } from "./infra/movie";
 import { PrismaClient } from "@prisma/client";
-import { playRepositoryBuilder } from "./infra/play";
+import { movieUpcomingListHandler } from "./handler/movie";
+import { movieQueryBuilder } from "./infra/movie";
+import { screenCreateHandler, screenDeleteHandler } from "./handler/screen";
+import { screenRepositoryBuilder } from "./infra/screen";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({ log: ["query"] });
 
 const requestContext = {
-  movieRepository: movieRepositoryBuilder(prisma),
-  playRepository: playRepositoryBuilder(prisma),
+  prisma,
+  movieQuery: movieQueryBuilder(prisma),
+  screenRepository: screenRepositoryBuilder(prisma),
 };
 
 declare global {
@@ -28,8 +30,12 @@ app.use((req, res, next) => {
   req.context = requestContext;
   next();
 });
-app.get("/movies", movieListHandler);
+app.get("/theaters/:id(\\d+)/movies/upcoming", movieUpcomingListHandler);
+app.post("/admin/screens", screenCreateHandler);
+app.delete("/admin/screens/:id(\\d+)", screenDeleteHandler);
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Starting app on http:localhost:${port}`);
 });
+
+process.on("SIGTERM", () => process.exit());

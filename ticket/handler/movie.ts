@@ -1,26 +1,31 @@
 import { RequestHandler } from "express";
 
-export const movieListHandler: RequestHandler = async (req, res) => {
-  const { movieRepository, playRepository } = req.context;
+export const movieUpcomingListHandler: RequestHandler = async (req, res) => {
+  const { prisma, movieQuery } = req.context;
+  const theaterId = Number(req.params.id);
   try {
-    const movies = await movieRepository.findUpcomingList(new Date());
-    const playsPerMovie = await playRepository.findUpcomingListPerMovie(
-      new Date(),
-      movies.map((m) => m.id),
-      { limitPerMovie: 5 }
-    );
+    const movieIds = await movieQuery.findUpcomingIds(theaterId, 20);
+    const movies = await prisma.movie.findMany({
+      where: { id: { in: movieIds } },
+      include: { plays: { include: { screen: true } } },
+    });
+
     res.json({
-      movies: movies.map((m) => ({
-        id: m.id,
-        title: m.title,
-        releaseDate: m.releaseDate,
-        plays: (playsPerMovie[m.id] || []).map((p) => ({
-          screenName: p.screen?.name || "",
-          datetime: p.datetime,
+      movies: movies.map(({ id, title, releaseDate, plays }) => ({
+        id,
+        title,
+        releaseDate,
+        plays: plays.map(({ id, datetime, screen }) => ({
+          id,
+          datetime,
+          screen: {
+            id: screen.id,
+            name: screen.name,
+          },
         })),
       })),
     });
-  } catch (e) {
+  } catch (e: any) {
     res.status(500);
     res.json({ message: e.message });
   }

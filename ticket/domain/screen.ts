@@ -1,18 +1,10 @@
-import { Theater } from "./theater";
-import { Movie } from "./movie";
+import { Screen, ScreenOption } from "@prisma/client";
 
-export type Screen = {
-  id: number;
-  name: string;
-  theaterId: number;
-  theater?: Theater;
-  movieId: number;
-  movie?: Movie;
-  options: ScreenOption[]
+export type ScreenAggregate = Pick<Screen, "name" | "theaterId"> & {
+  options: Array<Pick<ScreenOption, "name" | "extraPrice">>;
 };
 
-export type ScreenOption = {
-  id: number
-  name: string
-  extraPrice: number
-}
+export type ScreenRepository = {
+  create(screen: ScreenAggregate): Promise<Screen["id"]>;
+  delete(id: Screen["id"]): Promise<boolean>;
+};
