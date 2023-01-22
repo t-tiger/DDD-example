@@ -1,7 +1,7 @@
 import { z, ZodError } from "zod";
 import { RequestHandler } from "express";
 
-const CreateParams = z.object({
+const ScreenParams = z.object({
   name: z.string(),
   theaterId: z.number().int(),
   options: z.array(
@@ -16,11 +16,32 @@ export const screenCreateHandler: RequestHandler = async (req, res) => {
   const { screenRepository } = req.context;
 
   try {
-    const body = CreateParams.parse(req.body);
+    const body = ScreenParams.parse(req.body);
     const createdId = await screenRepository.create(body);
 
     res.status(201);
     res.json({ id: createdId });
+  } catch (e: any) {
+    if (e instanceof ZodError) {
+      res.status(400);
+      res.json({ errors: e });
+      return;
+    }
+    res.status(500);
+    res.json({ message: e.message });
+  }
+};
+
+export const screenUpdateHandler: RequestHandler = async (req, res) => {
+  const { screenRepository } = req.context;
+
+  try {
+    const body = ScreenParams.parse(req.body);
+    const id = Number(req.params.id)
+    await screenRepository.update({...body, id})
+
+    res.status(200);
+    res.json({ success: true });
   } catch (e: any) {
     if (e instanceof ZodError) {
       res.status(400);

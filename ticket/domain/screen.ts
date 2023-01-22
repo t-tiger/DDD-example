@@ -1,10 +1,12 @@
 import { Screen, ScreenOption } from "@prisma/client";
 
-export type ScreenAggregate = Pick<Screen, "name" | "theaterId"> & {
+export type ScreenUpdate = Pick<Screen, "id" | "name" | "theaterId"> & {
   options: Array<Pick<ScreenOption, "name" | "extraPrice">>;
 };
+export type ScreenCreate = Omit<ScreenUpdate, "id">;
 
 export type ScreenRepository = {
-  create(screen: ScreenAggregate): Promise<Screen["id"]>;
+  create(screen: ScreenCreate): Promise<Screen["id"]>;
+  update(screen: ScreenUpdate): Promise<boolean>;
   delete(id: Screen["id"]): Promise<boolean>;
 };
