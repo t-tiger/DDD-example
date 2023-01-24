@@ -9,6 +9,8 @@ import {
   screenUpdateHandler,
 } from "./handler/screen";
 import { screenRepositoryBuilder } from "./infra/screen";
+import { reservationCreateHandler } from "./handler/reservation";
+import { reservationRepositoryBuilder } from "./infra/reservation";
 
 const prisma = new PrismaClient({ log: ["query"] });
 
@@ -16,6 +18,7 @@ const requestContext = {
   prisma,
   movieQuery: movieQueryBuilder(prisma),
   screenRepository: screenRepositoryBuilder(prisma),
+  reservationRepository: reservationRepositoryBuilder(prisma),
 };
 
 declare global {
@@ -35,9 +38,10 @@ app.use((req, res, next) => {
   next();
 });
 app.get("/theaters/:id(\\d+)/movies/upcoming", movieUpcomingListHandler);
+app.post("/reservations", reservationCreateHandler);
 app.post("/admin/screens", screenCreateHandler);
-app.patch("/admin/screens/:id(\\d+)", screenUpdateHandler);
-app.delete("/admin/screens/:id(\\d+)", screenDeleteHandler);
+app.patch("/admin/screens/:id", screenUpdateHandler);
+app.delete("/admin/screens/:id", screenDeleteHandler);
 
 app.listen(port, () => {
   console.log(`Starting app on http:localhost:${port}`);

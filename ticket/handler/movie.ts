@@ -1,9 +1,15 @@
+import { z, ZodError } from "zod";
 import { RequestHandler } from "express";
+import {handleZodError} from "./error";
+
+const MovieUpcomingList = z.object({
+  theaterId: z.number(),
+});
 
 export const movieUpcomingListHandler: RequestHandler = async (req, res) => {
   const { prisma, movieQuery } = req.context;
-  const theaterId = Number(req.params.id);
   try {
+    const { theaterId } = MovieUpcomingList.parse(req.params);
     const movieIds = await movieQuery.findUpcomingIds(theaterId, 20);
     const movies = await prisma.movie.findMany({
       where: { id: { in: movieIds } },
@@ -26,6 +32,10 @@ export const movieUpcomingListHandler: RequestHandler = async (req, res) => {
       })),
     });
   } catch (e: any) {
+    if (e instanceof ZodError) {
+      handleZodError(e, res)
+      return;
+    }
     res.status(500);
     res.json({ message: e.message });
   }
