@@ -1,6 +1,6 @@
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import { RequestHandler } from "express";
-import {handleZodError} from "./error";
+import { handleError } from "./error";
 
 const MovieUpcomingList = z.object({
   theaterId: z.number(),
@@ -32,11 +32,6 @@ export const movieUpcomingListHandler: RequestHandler = async (req, res) => {
       })),
     });
   } catch (e: any) {
-    if (e instanceof ZodError) {
-      handleZodError(e, res)
-      return;
-    }
-    res.status(500);
-    res.json({ message: e.message });
+    handleError(e, res);
   }
 };

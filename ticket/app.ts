@@ -11,6 +11,8 @@ import {
 import { screenRepositoryBuilder } from "./infra/screen";
 import { reservationCreateHandler } from "./handler/reservation";
 import { reservationRepositoryBuilder } from "./infra/reservation";
+import { disCountListHandler } from "./handler/discount";
+import { playDetailHandler, playSeatsHandler } from "./handler/play";
 
 const prisma = new PrismaClient({ log: ["query"] });
 
@@ -37,7 +39,10 @@ app.use((req, res, next) => {
   req.context = requestContext;
   next();
 });
-app.get("/theaters/:id(\\d+)/movies/upcoming", movieUpcomingListHandler);
+app.get("/theaters/:id/movies/upcoming", movieUpcomingListHandler);
+app.post("/discounts", disCountListHandler);
+app.post("/plays/:id", playDetailHandler);
+app.post("/plays/:id/seats", playSeatsHandler);
 app.post("/reservations", reservationCreateHandler);
 app.post("/admin/screens", screenCreateHandler);
 app.patch("/admin/screens/:id", screenUpdateHandler);

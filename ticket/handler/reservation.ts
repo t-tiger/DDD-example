@@ -1,7 +1,7 @@
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import { RequestHandler } from "express";
-import { handleZodError } from "./error";
 import { createReservationUsecase } from "../usecase/reservation";
+import { handleError } from "./error";
 
 const ReservationCreate = z.object({
   playId: z.number(),
@@ -25,11 +25,6 @@ export const reservationCreateHandler: RequestHandler = async (req, res) => {
     res.status(201);
     res.json({ id: reservationId });
   } catch (e: any) {
-    if (e instanceof ZodError) {
-      handleZodError(e, res);
-      return;
-    }
-    res.status(500);
-    res.json({ message: e.message });
+    handleError(e, res);
   }
 };
