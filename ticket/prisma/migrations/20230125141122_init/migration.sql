@@ -57,10 +57,12 @@ CREATE TABLE `Seat` (
 -- CreateTable
 CREATE TABLE `Reservation` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `price` INTEGER NOT NULL,
     `playId` INTEGER NOT NULL,
     `seatId` INTEGER NOT NULL,
     `customerId` INTEGER NOT NULL,
 
+    UNIQUE INDEX `Reservation_playId_seatId_key`(`playId`, `seatId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

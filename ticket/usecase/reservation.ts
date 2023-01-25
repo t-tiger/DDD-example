@@ -39,6 +39,7 @@ export const createReservationUsecase =
 
     return await create({
       customer,
+      seat: { id: params.seatId },
       discounts,
       play,
       screenOptions,

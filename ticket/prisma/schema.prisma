@@ -62,6 +62,7 @@ model Seat {
 
 model Reservation {
   id         Int                   @id @default(autoincrement())
+  price      Int
   play       Play                  @relation(fields: [playId], references: [id])
   playId     Int
   seat       Seat                  @relation(fields: [seatId], references: [id])
@@ -69,6 +70,8 @@ model Reservation {
   customer   Customer              @relation(fields: [customerId], references: [id])
   customerId Int
   discounts  ReservationDiscount[]
+
+  @@unique([playId, seatId])
 }
 
 model ReservationDiscount {

@@ -10,9 +10,33 @@ export const reservationRepositoryBuilder = (
 ): ReservationRepository => {
   return {
     create: async (reservation: ReservationCreate): Promise<Screen["id"]> => {
-      const price = calculateReservationPrice(reservation);
+      // NOTE: Instead of checking here, we can take Functional modeling approach in a different way
+      if (
+        (await prisma.reservation.count({
+          where: { id: reservation.seat.id },
+        })) > 0
+      ) {
+        throw new Error('Reservation already exists on the same seat and play.')
+      }
 
-      return 0;
+      return prisma.$transaction(async (tx) => {
+        const createdReservation = await tx.reservation.create({
+          data: {
+            price: calculateReservationPrice(reservation),
+            playId: reservation.play.id,
+            seatId: reservation.seat.id,
+            customerId: reservation.customer.id,
+          },
+        });
+        await tx.reservationDiscount.createMany({
+          data: reservation.discounts.map((d) => ({
+            reservationId: createdReservation.id,
+            discountId: d.id,
+          })),
+        });
+
+        return createdReservation.id;
+      });
     },
   };
 };
