@@ -3,7 +3,7 @@ import { RequestHandler } from "express";
 import { handleError } from "./error";
 
 const PlayDetail = z.object({
-  id: z.number(),
+  id: z.string(),
 });
 
 export const playDetailHandler: RequestHandler = async (req, res) => {
@@ -46,7 +46,7 @@ export const playDetailHandler: RequestHandler = async (req, res) => {
 };
 
 const PlaySeats = z.object({
-  id: z.number(),
+  id: z.string(),
 });
 
 export const playSeatsHandler: RequestHandler = async (req, res) => {

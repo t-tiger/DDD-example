@@ -1,3 +1,4 @@
+import { v4 } from "uuid";
 import { Prisma, PrismaClient, Screen } from "@prisma/client";
 import { ScreenCreate, ScreenRepository, ScreenUpdate } from "../domain/screen";
 import TransactionClient = Prisma.TransactionClient;
@@ -9,6 +10,7 @@ export const screenRepositoryBuilder = (
     (tx: TransactionClient) => (data: Pick<ScreenUpdate, "id" | "options">) => {
       return tx.screenOption.createMany({
         data: data.options.map((option) => ({
+          id: v4(),
           name: option.name,
           extraPrice: option.extraPrice,
           screenId: data.id,
@@ -21,6 +23,7 @@ export const screenRepositoryBuilder = (
       return prisma.$transaction(async (tx) => {
         const createdScreen = await tx.screen.create({
           data: {
+            id: v4(),
             name: screen.name,
             theaterId: screen.theaterId,
           },

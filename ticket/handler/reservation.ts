@@ -4,9 +4,9 @@ import { createReservationUsecase } from "../usecase/reservation";
 import { handleError } from "./error";
 
 const ReservationCreate = z.object({
-  playId: z.number(),
-  seatId: z.number(),
-  discountIds: z.array(z.number()),
+  playId: z.string(),
+  seatId: z.string(),
+  discountIds: z.array(z.string()),
 });
 
 export const reservationCreateHandler: RequestHandler = async (req, res) => {
@@ -16,7 +16,7 @@ export const reservationCreateHandler: RequestHandler = async (req, res) => {
   } = req.context;
   try {
     const params = ReservationCreate.parse(req.body);
-    const customerId = 1; // Value should be obtained by authentication
+    const customerId = "1"; // Value should be obtained by authentication
     const reservationId = await createReservationUsecase({ prisma, create })({
       ...params,
       customerId,

@@ -2,7 +2,6 @@ import {
   Customer,
   Discount,
   Play,
-  Reservation,
   Screen,
   ScreenOption,
   Seat,

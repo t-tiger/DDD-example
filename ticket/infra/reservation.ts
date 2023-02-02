@@ -1,3 +1,4 @@
+import { v4 } from "uuid";
 import { PrismaClient, Screen } from "@prisma/client";
 import {
   calculateReservationPrice,
@@ -16,12 +17,15 @@ export const reservationRepositoryBuilder = (
           where: { id: reservation.seat.id },
         })) > 0
       ) {
-        throw new Error('Reservation already exists on the same seat and play.')
+        throw new Error(
+          "Reservation already exists on the same seat and play."
+        );
       }
 
       return prisma.$transaction(async (tx) => {
         const createdReservation = await tx.reservation.create({
           data: {
+            id: v4(),
             price: calculateReservationPrice(reservation),
             playId: reservation.play.id,
             seatId: reservation.seat.id,
@@ -30,6 +34,7 @@ export const reservationRepositoryBuilder = (
         });
         await tx.reservationDiscount.createMany({
           data: reservation.discounts.map((d) => ({
+            id: v4(),
             reservationId: createdReservation.id,
             discountId: d.id,
           })),

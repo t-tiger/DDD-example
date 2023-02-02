@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE `Movie` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(36) NOT NULL,
     `title` VARCHAR(255) NOT NULL,
     `releaseDate` DATE NOT NULL,
     `createdAt` DATETIME(3) NOT NULL,
@@ -10,9 +10,9 @@ CREATE TABLE `Movie` (
 
 -- CreateTable
 CREATE TABLE `Play` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `movieId` INTEGER NOT NULL,
-    `screenId` INTEGER NOT NULL,
+    `id` VARCHAR(36) NOT NULL,
+    `movieId` VARCHAR(36) NOT NULL,
+    `screenId` VARCHAR(36) NOT NULL,
     `datetime` DATETIME(3) NOT NULL,
 
     PRIMARY KEY (`id`)
@@ -20,7 +20,7 @@ CREATE TABLE `Play` (
 
 -- CreateTable
 CREATE TABLE `Theater` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(36) NOT NULL,
     `address` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`id`)
@@ -28,39 +28,39 @@ CREATE TABLE `Theater` (
 
 -- CreateTable
 CREATE TABLE `Screen` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(36) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
-    `theaterId` INTEGER NOT NULL,
+    `theaterId` VARCHAR(36) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `ScreenOption` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(36) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `extraPrice` INTEGER NOT NULL,
-    `screenId` INTEGER NOT NULL,
+    `screenId` VARCHAR(36) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Seat` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(36) NOT NULL,
     `number` VARCHAR(191) NOT NULL,
-    `screenId` INTEGER NOT NULL,
+    `screenId` VARCHAR(36) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Reservation` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(36) NOT NULL,
     `price` INTEGER NOT NULL,
-    `playId` INTEGER NOT NULL,
-    `seatId` INTEGER NOT NULL,
-    `customerId` INTEGER NOT NULL,
+    `playId` VARCHAR(36) NOT NULL,
+    `seatId` VARCHAR(36) NOT NULL,
+    `customerId` VARCHAR(36) NOT NULL,
 
     UNIQUE INDEX `Reservation_playId_seatId_key`(`playId`, `seatId`),
     PRIMARY KEY (`id`)
@@ -68,16 +68,16 @@ CREATE TABLE `Reservation` (
 
 -- CreateTable
 CREATE TABLE `ReservationDiscount` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `reservationId` INTEGER NOT NULL,
-    `discountId` INTEGER NOT NULL,
+    `id` VARCHAR(36) NOT NULL,
+    `reservationId` VARCHAR(36) NOT NULL,
+    `discountId` VARCHAR(36) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Discount` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(36) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `price` INTEGER NOT NULL,
 
@@ -86,7 +86,7 @@ CREATE TABLE `Discount` (
 
 -- CreateTable
 CREATE TABLE `Customer` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(36) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `birth` DATE NOT NULL,
 

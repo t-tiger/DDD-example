@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Movie {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @db.VarChar(36)
   title       String   @db.VarChar(255)
   releaseDate DateTime @db.Date()
   createdAt   DateTime
@@ -19,78 +19,78 @@ model Movie {
 }
 
 model Play {
-  id           Int           @id @default(autoincrement())
+  id           String        @id @db.VarChar(36)
   movie        Movie         @relation(fields: [movieId], references: [id])
-  movieId      Int
+  movieId      String        @db.VarChar(36)
   screen       Screen        @relation(fields: [screenId], references: [id])
-  screenId     Int
+  screenId     String        @db.VarChar(36)
   reservations Reservation[]
   datetime     DateTime
 }
 
 model Theater {
-  id      Int      @id @default(autoincrement())
+  id      String   @id @db.VarChar(36)
   address String
   screens Screen[]
 }
 
 model Screen {
-  id        Int            @id @default(autoincrement())
+  id        String         @id @db.VarChar(36)
   name      String
   theater   Theater        @relation(fields: [theaterId], references: [id])
-  theaterId Int
+  theaterId String         @db.VarChar(36)
   seats     Seat[]
   plays     Play[]
   options   ScreenOption[]
 }
 
 model ScreenOption {
-  id         Int    @id @default(autoincrement())
+  id         String @id @db.VarChar(36)
   name       String
   extraPrice Int
   screen     Screen @relation(fields: [screenId], references: [id])
-  screenId   Int
+  screenId   String @db.VarChar(36)
 }
 
 model Seat {
-  id           Int           @id @default(autoincrement())
+  id           String        @id @db.VarChar(36)
   number       String
   screen       Screen        @relation(fields: [screenId], references: [id])
-  screenId     Int
+  screenId     String        @db.VarChar(36)
   reservations Reservation[]
 }
 
 model Reservation {
-  id         Int                   @id @default(autoincrement())
+  id         String                @id @db.VarChar(36)
   price      Int
   play       Play                  @relation(fields: [playId], references: [id])
-  playId     Int
+  playId     String                @db.VarChar(36)
   seat       Seat                  @relation(fields: [seatId], references: [id])
-  seatId     Int
+  seatId     String                @db.VarChar(36)
   customer   Customer              @relation(fields: [customerId], references: [id])
-  customerId Int
+  customerId String                @db.VarChar(36)
   discounts  ReservationDiscount[]
 
   @@unique([playId, seatId])
 }
 
 model ReservationDiscount {
-  id            Int         @id @default(autoincrement())
+  id            String      @id @db.VarChar(36)
   reservation   Reservation @relation(fields: [reservationId], references: [id])
-  reservationId Int
+  reservationId String      @db.VarChar(36)
   discount      Discount    @relation(fields: [discountId], references: [id])
-  discountId    Int
+  discountId    String      @db.VarChar(36)
 }
 
 model Discount {
-  id                  Int                   @id @default(autoincrement())
+  id                  String                @id @db.VarChar(36)
   name                String
   price               Int
   resrvationDiscounts ReservationDiscount[]
 }
 
 model Customer {
-  id           Int           @id @default(autoincrement())
+  id           String        @id @db.VarChar(36)
   name         String
   birth        DateTime      @db.Date()
   reservations Reservation[]

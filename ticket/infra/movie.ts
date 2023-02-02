@@ -10,7 +10,7 @@ export const movieQueryBuilder = (prisma: PrismaClient) => {
         where: {
           datetime: { gte: new Date() },
           screen: {
-            theaterId: 1,
+            theaterId,
           },
         },
         take: limit,

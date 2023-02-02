@@ -3,7 +3,7 @@ import { RequestHandler } from "express";
 import { handleError } from "./error";
 
 const MovieUpcomingList = z.object({
-  theaterId: z.number(),
+  theaterId: z.string(),
 });
 
 export const movieUpcomingListHandler: RequestHandler = async (req, res) => {
