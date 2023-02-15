@@ -11,7 +11,6 @@ import { customerAgeOnDate } from "./customer";
 export type ReservationCreate = {
   play: Pick<Play, "id" | "datetime">;
   seat: Pick<Seat, "id">;
-  customer: Pick<Customer, "id" | "birth">;
   screenOptions: Array<Pick<ScreenOption, "extraPrice">>;
   discounts: Array<Pick<Discount, "id" | "price">>;
 };

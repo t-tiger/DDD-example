@@ -4,13 +4,9 @@ import { handleError } from "./error";
 
 const ScreenCreate = z.object({
   name: z.string().trim(),
+  screenSize: z.string().trim(),
   theaterId: z.string().trim(),
-  options: z.array(
-    z.object({
-      name: z.string().trim(),
-      extraPrice: z.number(),
-    })
-  ),
+  optionIds: z.array(z.string()),
 });
 
 export const screenCreateHandler: RequestHandler = async (req, res) => {

@@ -1,7 +1,7 @@
 import { Screen, ScreenOption } from "@prisma/client";
 
-export type ScreenUpdate = Pick<Screen, "id" | "name" | "theaterId"> & {
-  options: Array<Pick<ScreenOption, "name" | "extraPrice">>;
+export type ScreenUpdate = Pick<Screen, "id" | "screenSize" | "theaterId"> & {
+  optionIds: Array<ScreenOption['id']>
 };
 export type ScreenCreate = Omit<ScreenUpdate, "id">;
 

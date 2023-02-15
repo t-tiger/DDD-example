@@ -1,4 +1,3 @@
-import { v4 } from "uuid";
 import { PrismaClient, Screen } from "@prisma/client";
 import {
   calculateReservationPrice,
@@ -11,7 +10,6 @@ export const reservationRepositoryBuilder = (
 ): ReservationRepository => {
   return {
     create: async (reservation: ReservationCreate): Promise<Screen["id"]> => {
-      // NOTE: Instead of checking here, we can take Functional modeling approach in a different way
       if (
         (await prisma.reservation.count({
           where: { id: reservation.seat.id },
@@ -25,7 +23,6 @@ export const reservationRepositoryBuilder = (
       return prisma.$transaction(async (tx) => {
         const createdReservation = await tx.reservation.create({
           data: {
-            id: v4(),
             price: calculateReservationPrice(reservation),
             playId: reservation.play.id,
             seatId: reservation.seat.id,
@@ -34,7 +31,6 @@ export const reservationRepositoryBuilder = (
         });
         await tx.reservationDiscount.createMany({
           data: reservation.discounts.map((d) => ({
-            id: v4(),
             reservationId: createdReservation.id,
             discountId: d.id,
           })),

@@ -6,7 +6,7 @@ export const movieQueryBuilder = (prisma: PrismaClient) => {
       theaterId: Theater["id"],
       limit: number
     ): Promise<Movie["id"][]> => {
-      const data = await prisma.play.findMany({
+      const data = await prisma.showing.findMany({
         where: {
           datetime: { gte: new Date() },
           screen: {

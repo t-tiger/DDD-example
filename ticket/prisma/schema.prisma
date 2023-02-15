@@ -10,88 +10,137 @@ datasource db {
   url      = "mysql://root:password@127.0.0.1:3307/ticket?connection_limit=20&socket_timeout=5"
 }
 
-model Movie {
-  id          String   @id @db.VarChar(36)
-  title       String   @db.VarChar(255)
-  releaseDate DateTime @db.Date()
-  createdAt   DateTime
-  plays       Play[]
-}
-
-model Play {
-  id           String        @id @db.VarChar(36)
-  movie        Movie         @relation(fields: [movieId], references: [id])
-  movieId      String        @db.VarChar(36)
-  screen       Screen        @relation(fields: [screenId], references: [id])
-  screenId     String        @db.VarChar(36)
-  reservations Reservation[]
-  datetime     DateTime
-}
-
 model Theater {
-  id      String   @id @db.VarChar(36)
+  id      String   @id @default(cuid())
   address String
+  name    String
   screens Screen[]
 }
 
 model Screen {
-  id        String         @id @db.VarChar(36)
-  name      String
-  theater   Theater        @relation(fields: [theaterId], references: [id])
-  theaterId String         @db.VarChar(36)
-  seats     Seat[]
-  plays     Play[]
-  options   ScreenOption[]
+  id                  String                 @id @default(cuid())
+  screenSize          String
+  theater             Theater                @relation(fields: [theaterId], references: [id])
+  theaterId           String                 @db.VarChar(36)
+  showings            Showing[]
+  seats               Seat[]
+  seenOptionRelations ScreenOptionRelation[]
+}
+
+model ScreenOptionRelation {
+  id       String       @id @default(cuid())
+  screen   Screen       @relation(fields: [screenId], references: [id])
+  screenId String       @db.VarChar(36)
+  option   ScreenOption @relation(fields: [optionId], references: [id])
+  optionId String       @db.VarChar(36)
 }
 
 model ScreenOption {
-  id         String @id @db.VarChar(36)
-  name       String
-  extraPrice Int
-  screen     Screen @relation(fields: [screenId], references: [id])
-  screenId   String @db.VarChar(36)
+  id                    String                 @id @default(cuid())
+  name                  String
+  screenOptionRelations ScreenOptionRelation[]
 }
 
 model Seat {
-  id           String        @id @db.VarChar(36)
-  number       String
-  screen       Screen        @relation(fields: [screenId], references: [id])
-  screenId     String        @db.VarChar(36)
-  reservations Reservation[]
+  id                  String               @id @default(cuid())
+  screen              Screen               @relation(fields: [screenId], references: [id])
+  screenId            String               @db.VarChar(36)
+  row                 Int
+  column              Int
+  reservationSeats    ReservationSeat[]
+  seatOptionRelations SeatOptionRelation[]
+}
+
+model SeatOptionRelation {
+  id       String     @id @default(cuid())
+  seat     Seat       @relation(fields: [seatId], references: [id])
+  seatId   String     @db.VarChar(36)
+  option   SeatOption @relation(fields: [optionId], references: [id])
+  optionId String     @db.VarChar(36)
+}
+
+model SeatOption {
+  id                  String               @id @default(cuid())
+  name                String
+  seatOptionRelations SeatOptionRelation[]
+}
+
+model Movie {
+  id                   String                @id @default(cuid())
+  name                 String
+  description          String
+  author               String
+  showings             Showing[]
+  movieOptionRelations MovieOptionRelation[]
+}
+
+model MovieOptionRelation {
+  id       String      @id @default(cuid())
+  movie    Movie       @relation(fields: [movieId], references: [id])
+  movieId  String      @db.VarChar(36)
+  option   MovieOption @relation(fields: [optionId], references: [id])
+  optionId String      @db.VarChar(36)
+}
+
+model MovieOption {
+  id                   String                @id @default(cuid())
+  name                 String
+  movieOptionRelations MovieOptionRelation[]
+}
+
+model Showing {
+  id             String        @id @default(cuid())
+  screen         Screen        @relation(fields: [screenId], references: [id])
+  screenId       String        @db.VarChar(36)
+  movie          Movie         @relation(fields: [movieId], references: [id])
+  movieId        String        @db.VarChar(36)
+  datetime       DateTime
+  ageRestriction Int
+  reservations   Reservation[]
 }
 
 model Reservation {
-  id         String                @id @db.VarChar(36)
-  price      Int
-  play       Play                  @relation(fields: [playId], references: [id])
-  playId     String                @db.VarChar(36)
-  seat       Seat                  @relation(fields: [seatId], references: [id])
-  seatId     String                @db.VarChar(36)
-  customer   Customer              @relation(fields: [customerId], references: [id])
-  customerId String                @db.VarChar(36)
-  discounts  ReservationDiscount[]
-
-  @@unique([playId, seatId])
-}
-
-model ReservationDiscount {
-  id            String      @id @db.VarChar(36)
-  reservation   Reservation @relation(fields: [reservationId], references: [id])
-  reservationId String      @db.VarChar(36)
-  discount      Discount    @relation(fields: [discountId], references: [id])
-  discountId    String      @db.VarChar(36)
-}
-
-model Discount {
-  id                  String                @id @db.VarChar(36)
-  name                String
-  price               Int
-  resrvationDiscounts ReservationDiscount[]
+  id               String            @id @default(cuid())
+  showing          Showing           @relation(fields: [showingId], references: [id])
+  showingId        String            @db.VarChar(36)
+  customer         Customer          @relation(fields: [customerId], references: [id])
+  customerId       String            @db.VarChar(36)
+  numberOfAdults   Int
+  numberOfChildren Int
+  canceled         Boolean
+  reservationSeats ReservationSeat[]
+  payment          Payment?
 }
 
 model Customer {
-  id           String        @id @db.VarChar(36)
-  name         String
-  birth        DateTime      @db.Date()
+  id           String        @id @default(cuid())
+  email        String        @unique
   reservations Reservation[]
+}
+
+model ReservationSeat {
+  id            String      @id @default(cuid())
+  reservation   Reservation @relation(fields: [reservationId], references: [id])
+  reservationId String      @db.VarChar(36)
+  seat          Seat        @relation(fields: [seatId], references: [id])
+  seatId        String      @db.VarChar(36)
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  type          String
+  reservation   Reservation   @relation(fields: [reservationId], references: [id])
+  reservationId String        @unique @db.VarChar(36)
+  price         Int
+  createdAt     DateTime
+  paid          Boolean
+  priceOptions  PriceOption[]
+}
+
+model PriceOption {
+  id        String  @id @default(cuid())
+  name      String
+  price     Int
+  payment   Payment @relation(fields: [paymentId], references: [id])
+  paymentId String  @db.VarChar(36)
 }

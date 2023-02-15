@@ -2,16 +2,16 @@ import { z } from "zod";
 import { RequestHandler } from "express";
 import { handleError } from "./error";
 
-const PlayDetail = z.object({
+const ShowingDetail = z.object({
   id: z.string(),
 });
 
-export const playDetailHandler: RequestHandler = async (req, res) => {
+export const showingDetailHandler: RequestHandler = async (req, res) => {
   const { prisma } = req.context;
 
   try {
-    const { id } = PlayDetail.parse(req.params);
-    const play = await prisma.play.findFirstOrThrow({
+    const { id } = ShowingDetail.parse(req.params);
+    const play = await prisma.showing.findFirstOrThrow({
       where: { id },
       include: { screen: { include: { theater: true } }, movie: true },
     });
@@ -28,7 +28,7 @@ export const playDetailHandler: RequestHandler = async (req, res) => {
       },
       screen: {
         id: screen.id,
-        name: screen.name,
+        screenSize: screen.screenSize,
         theater: {
           id: theater.id,
           address: theater.address,
@@ -36,8 +36,9 @@ export const playDetailHandler: RequestHandler = async (req, res) => {
       },
       movie: {
         id: movie.id,
-        title: movie.title,
-        releaseDate: movie.releaseDate,
+        name: movie.name,
+        description: movie.description,
+        author: movie.author,
       },
     });
   } catch (e: any) {
@@ -45,26 +46,31 @@ export const playDetailHandler: RequestHandler = async (req, res) => {
   }
 };
 
-const PlaySeats = z.object({
+const ShowingSeats = z.object({
   id: z.string(),
 });
 
-export const playSeatsHandler: RequestHandler = async (req, res) => {
+export const showingSeatsHandler: RequestHandler = async (req, res) => {
   const { prisma } = req.context;
 
   try {
-    const { id } = PlaySeats.parse(req.params);
-    const play = await prisma.play.findFirstOrThrow({
+    const { id } = ShowingSeats.parse(req.params);
+    const play = await prisma.showing.findFirstOrThrow({
       where: { id },
       include: { screen: true },
     });
     const reservedSeatIds = new Set(
       (
-        await prisma.reservation.findMany({
-          where: { playId: id },
-          select: { id: true },
+        await prisma.reservationSeat.findMany({
+          where: {
+            reservation: {
+              canceled: false,
+              showingId: id,
+            },
+          },
+          select: { seatId: true },
         })
-      ).map(({ id }) => id)
+      ).map(({ seatId }) => seatId)
     );
     const seats = await prisma.seat.findMany({
       where: { screenId: play.screenId },
@@ -73,7 +79,8 @@ export const playSeatsHandler: RequestHandler = async (req, res) => {
     res.json({
       seats: seats.map((seat) => ({
         id: seat.id,
-        number: seat.number,
+        row: seat.row,
+        column: seat.column,
         reserved: reservedSeatIds.has(seat.id),
       })),
     });
