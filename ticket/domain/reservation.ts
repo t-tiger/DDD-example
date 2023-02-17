@@ -1,47 +1,90 @@
-import {
-  Customer,
-  Discount,
-  Play,
-  Screen,
-  ScreenOption,
-  Seat,
-} from "@prisma/client";
-import { customerAgeOnDate } from "./customer";
+import { Reservation, Seat } from "@prisma/client";
+import { z } from "zod";
+import { ShowingRepository } from "./showing";
+import { SeatRepository } from "./seat";
 
-export type ReservationCreate = {
-  play: Pick<Play, "id" | "datetime">;
-  seat: Pick<Seat, "id">;
-  screenOptions: Array<Pick<ScreenOption, "extraPrice">>;
-  discounts: Array<Pick<Discount, "id" | "price">>;
-};
+const ReservationCreateSchema = ({
+  seatRepository,
+  showingRepository,
+  reservationRepository,
+}: {
+  seatRepository: SeatRepository;
+  showingRepository: ShowingRepository;
+  reservationRepository: ReservationRepository;
+}) =>
+  z
+    .object({
+      showingId: z
+        .string()
+        .refine(async (id) => await showingRepository.exists(id), {
+          message: "Showing does not exist",
+        }),
+      customerId: z.string(),
+      numberOfAdults: z.number().min(0),
+      numberOfChildren: z.number().min(0),
+      showing: z.object({
+        datetime: z.date(),
+      }),
+      payment: z.object({
+        type: z.union([z.literal("credit"), z.literal("cash")]),
+      }),
+      priceOptions: z.array(
+        z.object({
+          name: z.string(),
+          price: z.number().int(),
+        })
+      ),
+      seats: z.array(
+        z.object({
+          id: z.string().refine(async (id) => await seatRepository.exists(id), {
+            message: "Seat does not exist",
+          }),
+        })
+      ),
+    })
+    .refine((val) => val.numberOfAdults > 0 || val.numberOfChildren > 0, {
+      message: "Number of tickets must be greater than 0",
+    })
+    .refine(async (val) => !(await reservationRepository.isReserved(val)), {
+      message: "Seats are already reserved",
+    })
+    .transform((val) => ({ ...val, kind: "CreateValidated" as const }));
+
+export type ReservationCreate = z.infer<
+  ReturnType<typeof ReservationCreateSchema>
+>;
+
+export const validateReservationCreate =
+  (repos: {
+    seatRepository: SeatRepository;
+    showingRepository: ShowingRepository;
+    reservationRepository: ReservationRepository;
+  }) =>
+  async (
+    reservation: Omit<ReservationCreate, "kind">
+  ): Promise<ReservationCreate> =>
+    ReservationCreateSchema(repos).parseAsync(reservation);
 
 export type ReservationRepository = {
-  create(reservation: ReservationCreate): Promise<Screen["id"]>;
+  isReserved(reservation: { seats: Array<Pick<Seat, "id">> }): Promise<boolean>;
+  create(reservation: ReservationCreate): Promise<Reservation>;
 };
 
-export const calculateReservationPrice = (reservation: {
-  play: Pick<Play, "datetime">;
-  customer: Pick<Customer, "birth">;
-  screenOptions: Array<Pick<ScreenOption, "extraPrice">>;
-  discounts: Array<Pick<Discount, "price">>;
-}) => {
-  const { play, customer, screenOptions, discounts } = reservation;
+export const calculateReservationPrice = (reservation: ReservationCreate) => {
+  const { showing, priceOptions, numberOfAdults, numberOfChildren } =
+    reservation;
 
-  const basePrice =
-    customerAgeOnDate(customer, play.datetime) > 18 ? 1800 : 1200;
-  const weekDayDiscount = play.datetime.getDay() === 2 ? 200 : 0; // Tuesday discount
-  const screenOptionExtraPrice = screenOptions
-    .map((o) => o.extraPrice)
-    .reduce((a, b) => a + b, 0);
-  const reservationDiscount = discounts
-    .map((d) => d.price)
-    .reduce((a, b) => a + b, 0);
+  const dayOfWeekDiscount = showing.datetime.getDay() === 2 ? 200 : 0;
+  const baseAdultPrice =
+    1800 +
+    -dayOfWeekDiscount +
+    priceOptions
+      .map(({ price }) => price)
+      .reduce((acc, price) => acc + price, 0);
+  const baseChildPrice = baseAdultPrice - 600;
 
-  const appliedPrice =
-    basePrice -
-    weekDayDiscount +
-    screenOptionExtraPrice -
-    reservationDiscount;
-
-  return Math.max(800, appliedPrice);
+  return (
+    Math.max(800, baseAdultPrice) * numberOfAdults +
+    Math.max(800, baseChildPrice) * numberOfChildren
+  );
 };

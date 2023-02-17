@@ -13,20 +13,21 @@ export const movieUpcomingListHandler: RequestHandler = async (req, res) => {
     const movieIds = await movieQuery.findUpcomingIds(theaterId, 20);
     const movies = await prisma.movie.findMany({
       where: { id: { in: movieIds } },
-      include: { plays: { include: { screen: true } } },
+      include: { showings: { include: { screen: true } } },
     });
 
     res.json({
-      movies: movies.map(({ id, title, releaseDate, plays }) => ({
+      movies: movies.map(({ id, name, author, description, showings }) => ({
         id,
-        title,
-        releaseDate,
-        plays: plays.map(({ id, datetime, screen }) => ({
+        name,
+        author,
+        description,
+        showings: showings.map(({ id, datetime, screen }) => ({
           id,
           datetime,
           screen: {
             id: screen.id,
-            name: screen.name,
+            size: screen.screenSize,
           },
         })),
       })),

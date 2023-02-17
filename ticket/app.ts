@@ -12,6 +12,8 @@ import { screenRepositoryBuilder } from "./infra/screen";
 import { reservationCreateHandler } from "./handler/reservation";
 import { reservationRepositoryBuilder } from "./infra/reservation";
 import { showingDetailHandler, showingSeatsHandler } from "./handler/showing";
+import { SeatRepository } from "./domain/seat";
+import { ShowingRepository } from "./domain/showing";
 
 const prisma = new PrismaClient({ log: ["query"] });
 
@@ -20,6 +22,8 @@ const requestContext = {
   movieQuery: movieQueryBuilder(prisma),
   screenRepository: screenRepositoryBuilder(prisma),
   reservationRepository: reservationRepositoryBuilder(prisma),
+  seatRepository: {} as SeatRepository,
+  showingRepository: {} as ShowingRepository,
 };
 
 declare global {

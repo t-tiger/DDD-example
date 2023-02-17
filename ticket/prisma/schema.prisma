@@ -18,74 +18,50 @@ model Theater {
 }
 
 model Screen {
-  id                  String                 @id @default(cuid())
-  screenSize          String
-  theater             Theater                @relation(fields: [theaterId], references: [id])
-  theaterId           String                 @db.VarChar(36)
-  showings            Showing[]
-  seats               Seat[]
-  seenOptionRelations ScreenOptionRelation[]
-}
-
-model ScreenOptionRelation {
-  id       String       @id @default(cuid())
-  screen   Screen       @relation(fields: [screenId], references: [id])
-  screenId String       @db.VarChar(36)
-  option   ScreenOption @relation(fields: [optionId], references: [id])
-  optionId String       @db.VarChar(36)
+  id         String         @id @default(cuid())
+  screenSize String
+  theater    Theater        @relation(fields: [theaterId], references: [id])
+  theaterId  String         @db.VarChar(36)
+  showings   Showing[]
+  seats      Seat[]
+  options    ScreenOption[] @relation("ScreenOptionRelation")
 }
 
 model ScreenOption {
-  id                    String                 @id @default(cuid())
-  name                  String
-  screenOptionRelations ScreenOptionRelation[]
+  id      String   @id @default(cuid())
+  name    String
+  screens Screen[] @relation("ScreenOptionRelation")
 }
 
 model Seat {
-  id                  String               @id @default(cuid())
-  screen              Screen               @relation(fields: [screenId], references: [id])
-  screenId            String               @db.VarChar(36)
-  row                 Int
-  column              Int
-  reservationSeats    ReservationSeat[]
-  seatOptionRelations SeatOptionRelation[]
-}
-
-model SeatOptionRelation {
-  id       String     @id @default(cuid())
-  seat     Seat       @relation(fields: [seatId], references: [id])
-  seatId   String     @db.VarChar(36)
-  option   SeatOption @relation(fields: [optionId], references: [id])
-  optionId String     @db.VarChar(36)
+  id           String        @id @default(cuid())
+  screen       Screen        @relation(fields: [screenId], references: [id])
+  screenId     String        @db.VarChar(36)
+  row          Int
+  column       Int
+  reservations Reservation[] @relation("ReservationSeat")
+  options      SeatOption[]  @relation("SeatOptionRelation")
 }
 
 model SeatOption {
-  id                  String               @id @default(cuid())
-  name                String
-  seatOptionRelations SeatOptionRelation[]
+  id    String @id @default(cuid())
+  name  String
+  seats Seat[] @relation("SeatOptionRelation")
 }
 
 model Movie {
-  id                   String                @id @default(cuid())
-  name                 String
-  description          String
-  author               String
-  showings             Showing[]
-  movieOptionRelations MovieOptionRelation[]
-}
-
-model MovieOptionRelation {
-  id       String      @id @default(cuid())
-  movie    Movie       @relation(fields: [movieId], references: [id])
-  movieId  String      @db.VarChar(36)
-  option   MovieOption @relation(fields: [optionId], references: [id])
-  optionId String      @db.VarChar(36)
+  id          String        @id @default(cuid())
+  name        String
+  description String
+  author      String
+  showings    Showing[]
+  options     MovieOption[] @relation("MovieOptionRelation")
 }
 
 model MovieOption {
-  id                   String                @id @default(cuid())
-  name                 String
-  movieOptionRelations MovieOptionRelation[]
+  id     String  @id @default(cuid())
+  name   String
+  movies Movie[] @relation("MovieOptionRelation")
 }
 
 model Showing {
@@ -100,16 +76,17 @@ model Showing {
 }
 
 model Reservation {
-  id               String            @id @default(cuid())
-  showing          Showing           @relation(fields: [showingId], references: [id])
-  showingId        String            @db.VarChar(36)
-  customer         Customer          @relation(fields: [customerId], references: [id])
-  customerId       String            @db.VarChar(36)
+  id               String   @id @default(cuid())
+  showing          Showing  @relation(fields: [showingId], references: [id])
+  showingId        String   @db.VarChar(36)
+  customer         Customer @relation(fields: [customerId], references: [id])
+  customerId       String   @db.VarChar(36)
   numberOfAdults   Int
   numberOfChildren Int
   canceled         Boolean
-  reservationSeats ReservationSeat[]
+  seats            Seat[]   @relation("ReservationSeat")
   payment          Payment?
+  createdAt        DateTime @default(now())
 }
 
 model Customer {
@@ -118,23 +95,15 @@ model Customer {
   reservations Reservation[]
 }
 
-model ReservationSeat {
-  id            String      @id @default(cuid())
-  reservation   Reservation @relation(fields: [reservationId], references: [id])
-  reservationId String      @db.VarChar(36)
-  seat          Seat        @relation(fields: [seatId], references: [id])
-  seatId        String      @db.VarChar(36)
-}
-
 model Payment {
   id            String        @id @default(cuid())
   type          String
   reservation   Reservation   @relation(fields: [reservationId], references: [id])
   reservationId String        @unique @db.VarChar(36)
   price         Int
-  createdAt     DateTime
   paid          Boolean
   priceOptions  PriceOption[]
+  createdAt     DateTime      @default(now())
 }
 
 model PriceOption {

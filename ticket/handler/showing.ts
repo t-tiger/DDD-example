@@ -61,16 +61,17 @@ export const showingSeatsHandler: RequestHandler = async (req, res) => {
     });
     const reservedSeatIds = new Set(
       (
-        await prisma.reservationSeat.findMany({
+        await prisma.seat.findMany({
           where: {
-            reservation: {
-              canceled: false,
-              showingId: id,
+            reservations: {
+              some: {
+                showingId: id
+              }
             },
           },
-          select: { seatId: true },
+          select: { id: true },
         })
-      ).map(({ seatId }) => seatId)
+      ).map(({ id }) => id)
     );
     const seats = await prisma.seat.findMany({
       where: { screenId: play.screenId },
